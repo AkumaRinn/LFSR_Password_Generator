@@ -38,7 +38,7 @@ def generateKey():
     test = test.replace(" ","")
     byte = int(test,2)
 
-    while len(key) < 17:
+    while len(key) < 16:
         #Get the last bit of the byte
         last_bit = byte & 0b0000000000000001
         key.append(last_bit)
