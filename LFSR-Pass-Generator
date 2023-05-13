@@ -1,0 +1,69 @@
+import random
+
+'''Programul trebuie sa primeasca de la uFlizator:
+- numarul minim, precum si maxim de caractere alfabeFce,
+- numarul minim, precum si maxim, de caractere numerice,
+- numarul minim, precum si maxim, de caractere speciale,
+- numarul total al caracterelor din componenta parolei
+Programul trebuie sa genereze cate 50 de parole care sa corespunda criteriilor introduse de
+uFlizator'''
+
+'''
+min_alpha = input("Minimum letters in password: ")
+max_alpha = input("Max. letters in pass: ")
+min_num = int(input("Min num. in pass: "))
+max_num = int(input("Max num in pass: "))
+min_speciale = input("Min special chars in pass: ")
+max_speciale = input("Max special chars in pass: ")
+total_elem = int(input("Total pass length: "))
+'''
+
+def generateSeed():
+    seed = []
+    for i in range(16):
+        bit = random.randint(0,1)
+        seed.append(str(bit))
+    while len(seed) < 16:
+        seed.append(0)
+    seed = " ".join(seed)
+    return seed
+
+
+
+def generateKey():
+    key = []
+    index_1 = 0
+    index_2 = 3
+    test = generateSeed()
+    test = test.replace(" ","")
+    byte = int(test,2)
+
+    while len(key) < 17:
+        #Get the last bit of the byte
+        last_bit = byte & 0b0000000000000001
+        key.append(last_bit)
+
+
+        #shift the byte to right by 1
+        shift_right = (byte >> 1)  | 0x8000
+
+
+        #calculate the first bit for the next byte
+        bit_1 = (byte >> index_1)&1
+        bit_2 = (byte >> index_2)&1
+        result = bit_1 ^ bit_2
+
+
+        #rebuild the byte
+        mask = (result<<15)&0b1000000000000000
+        if result == 0:
+            mask = 0
+        byte = shift_right | mask
+
+    return key
+
+#Start main
+t = generateKey()
+print(t)
+
+#End main
