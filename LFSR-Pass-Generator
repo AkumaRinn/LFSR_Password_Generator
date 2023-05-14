@@ -1,22 +1,33 @@
 import random
 
-'''Programul trebuie sa primeasca de la uFlizator:
-- numarul minim, precum si maxim de caractere alfabeFce,
-- numarul minim, precum si maxim, de caractere numerice,
-- numarul minim, precum si maxim, de caractere speciale,
-- numarul total al caracterelor din componenta parolei
-Programul trebuie sa genereze cate 50 de parole care sa corespunda criteriilor introduse de
-uFlizator'''
+alpha = 0
+num = 0
+speciale = 0
+total_elem = 0
+min_alpha = 0
+min_speciale = 0
+min_num = 0
 
-'''
-min_alpha = input("Minimum letters in password: ")
-max_alpha = input("Max. letters in pass: ")
-min_num = int(input("Min num. in pass: "))
-max_num = int(input("Max num in pass: "))
-min_speciale = input("Min special chars in pass: ")
-max_speciale = input("Max special chars in pass: ")
-total_elem = int(input("Total pass length: "))
-'''
+def userInput():
+    global alpha
+    global num
+    global speciale
+    global  total_elem
+    min_alpha = int(input("Minimum letters in password: "))
+    max_alpha = int(input("Max. letters in pass: "))
+    min_num = int(input("Min num. in pass: "))
+    max_num = int(input("Max num in pass: "))
+    min_speciale = int(input("Min special chars in pass: "))
+    max_speciale = int(input("Max special chars in pass: "))
+    total_elem = int(input("Total pass length: "))
+    alpha = random.randint(min_alpha,max_alpha)
+    num = random.randint(min_num,max_num)
+    speciale = random.randint(min_speciale,max_speciale)
+
+
+numbers = [0,1,2,3,4,5,6,7,8,9]
+letters = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
+symbols = ['!',"@",'#','$','%','^','&','*','(',')']
 
 def generateSeed():
     seed = []
@@ -34,9 +45,9 @@ def generateKey():
     key = []
     index_1 = 0
     index_2 = 3
-    test = generateSeed()
-    test = test.replace(" ","")
-    byte = int(test,2)
+    seed = generateSeed()
+    seed = seed.replace(" ","")
+    byte = int(seed,2)
 
     while len(key) < 16:
         #Get the last bit of the byte
@@ -62,8 +73,62 @@ def generateKey():
 
     return key
 
-#Start main
-t = generateKey()
-print(t)
 
+def passwordSeed():
+    '''generate the password text that needs to be converted
+    :returns list of elements'''
+    plain_pass = []
+    for i in range(alpha):
+        plain_pass.append(random.choice(letters))
+    for i in range(num):
+        plain_pass.append(random.choice(numbers))
+    for i in range(speciale):
+        plain_pass.append(random.choice(symbols))
+    while len(plain_pass)<total_elem:
+        plain_pass.append(random.choice(letters))
+    while len(plain_pass) > total_elem:
+        index = random.randrange(len(plain_pass))
+        del plain_pass[index]
+    random.shuffle(plain_pass)
+    return plain_pass
+
+
+def convertPassToBytes():
+    '''convert the generated password to bytes
+    :returns the bytes as a string'''
+    p = passwordSeed()
+    p_binary = [bin(x)[2:].zfill(8) if isinstance(x, int) else bin(ord(x))[2:].zfill(8) for x in p]
+    pass_string = " ".join(p_binary)
+    pass_string = pass_string.replace(" ","")
+    return pass_string
+
+def buildPass():
+    '''apply xor to the generated bits of the pass using the key
+    :returns a string of converted bytes '''
+    key = generateKey()
+    p = convertPassToBytes()
+    converted_pass = []
+    for i in range(len(p)):
+        item = key[i% len(key)]
+        element = int(p[i]) ^ int(item)
+        converted_pass.append(element)
+    converted_pass = ''.join(str(num) for num in converted_pass)
+    return converted_pass
+
+def generatePassword():
+    p = buildPass()
+    bytes = [int(p[i:i+8],2) for i in range(0,len(p),8)]
+    for i,element in enumerate(bytes):
+        if element > 126:
+            bytes[i] = 33 + (element - 127) % 94
+        elif element < 33:
+            bytes[i] = (element - 33) % (127 - 33 + 1) + 33
+    string = ''.join(chr(byte) for byte in bytes)
+    print(string)
+
+
+#Start main
+
+userInput()
+generatePassword()
 #End main
