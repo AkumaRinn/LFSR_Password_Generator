@@ -1,25 +1,36 @@
 import random
+import tkinter as tk
+from tkinter import messagebox
 
 alpha = 0
 num = 0
 speciale = 0
 total_elem = 0
 min_alpha = 0
-min_speciale = 0
 min_num = 0
+min_speciale = 0
 
 def userInput():
     global alpha
     global num
     global speciale
-    global  total_elem
-    min_alpha = int(input("Minimum letters in password: "))
-    max_alpha = int(input("Max. letters in pass: "))
-    min_num = int(input("Min num. in pass: "))
-    max_num = int(input("Max num in pass: "))
-    min_speciale = int(input("Min special chars in pass: "))
-    max_speciale = int(input("Max special chars in pass: "))
-    total_elem = int(input("Total pass length: "))
+    global total_elem
+    global min_alpha
+    global min_num
+    global min_speciale
+    min_alpha = int(letters_entry.get())
+    max_alpha = int(letters_entry1.get())
+    min_num = int(num_entry.get())
+    max_num = int(num_entry1.get())
+    min_speciale = int(sym_entry.get())
+    max_speciale = int(sym_entry1.get())
+    total_elem = int(total_entry.get())
+    btn.config(bg='red')
+    if total_elem>max_alpha+max_num+max_speciale:
+        messagebox.showwarning("Warning","Password length greater than the maximum characters")
+
+
+
     alpha = random.randint(min_alpha,max_alpha)
     num = random.randint(min_num,max_num)
     speciale = random.randint(min_speciale,max_speciale)
@@ -77,6 +88,7 @@ def generateKey():
 def passwordSeed():
     '''generate the password text that needs to be converted
     :returns list of elements'''
+
     plain_pass = []
     for i in range(alpha):
         plain_pass.append(random.choice(letters))
@@ -87,8 +99,7 @@ def passwordSeed():
     while len(plain_pass)<total_elem:
         plain_pass.append(random.choice(letters))
     while len(plain_pass) > total_elem:
-        index = random.randrange(len(plain_pass))
-        del plain_pass[index]
+        plain_pass.pop(0)
     random.shuffle(plain_pass)
     return plain_pass
 
@@ -124,11 +135,66 @@ def generatePassword():
         elif element < 33:
             bytes[i] = (element - 33) % (127 - 33 + 1) + 33
     string = ''.join(chr(byte) for byte in bytes)
-    print(string)
+    btn.config(bg='green')
+    return  string
 
 
-#Start main
 
-userInput()
-generatePassword()
-#End main
+
+#Build GUI
+
+root = tk.Tk()
+root.geometry("800x400")
+root.title("LFSR Password Generator")
+
+show_pass = tk.Text(root,height=10,font=('Arial',12))
+show_pass.place(x=10,y=200)
+def printCreatedPass():
+    generate = generatePassword() + '\n'
+    show_pass.insert(tk.END,generate)
+
+
+
+letters_label = tk.Label(root, text="Min Letters", font=('Arial', 12))
+letters_label.place(x=10,y=10)
+letters_entry = tk.Entry(root)
+letters_entry.place(x=150,y=13)
+
+letters_label1 = tk.Label(root, text="Max Letters", font=('Arial', 12))
+letters_label1.place(x=300,y=10)
+letters_entry1 = tk.Entry(root)
+letters_entry1.place(x=450,y=13)
+
+num_label = tk.Label(root, text="Min Numbers", font=('Arial', 12))
+num_label.place(x=10,y=40)
+num_entry = tk.Entry(root)
+num_entry.place(x=150,y=43)
+
+num_label1 = tk.Label(root, text="Max Numbers", font=('Arial', 12))
+num_label1.place(x=300,y=40)
+num_entry1 = tk.Entry(root)
+num_entry1.place(x=450,y=43)
+
+sym_label = tk.Label(root, text="Min Symbols", font=('Arial', 12))
+sym_label.place(x=10,y=70)
+sym_entry = tk.Entry(root)
+sym_entry.place(x=150,y=73)
+
+sym_label1 = tk.Label(root, text="Max Symbols", font=('Arial', 12))
+sym_label1.place(x=300,y=70)
+sym_entry1 = tk.Entry(root)
+sym_entry1.place(x=450,y=73)
+
+total_label = tk.Label(root,text="Password Length", font=('Arial',12))
+total_label.place(x=10,y=100)
+total_entry = tk.Entry(root)
+total_entry.place(x=150,y=103)
+
+btn = tk.Button(root,text="Use parameters", font=('Arial',12),bg="green", command = userInput)
+btn.place(x=10,y=150)
+
+btn_generate = tk.Button(root, text="Generate Password", font=('Arial',12), command = printCreatedPass)
+btn_generate.place(x=150,y=150)
+
+root.mainloop()
+
