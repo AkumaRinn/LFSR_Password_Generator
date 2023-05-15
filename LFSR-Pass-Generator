@@ -27,7 +27,9 @@ def userInput():
     total_elem = int(total_entry.get())
     btn.config(bg='red')
     if total_elem>max_alpha+max_num+max_speciale:
-        messagebox.showwarning("Warning","Password length greater than the maximum characters")
+        messagebox.showwarning("Warning",f"Password length greater than the maximum characters '{max_alpha+max_num+max_speciale}'")
+    elif total_elem<min_num+min_alpha+min_speciale:
+        messagebox.showwarning("Warning",f"Password length smaller than the minimum size '{min_num+min_alpha+min_speciale}'")
 
 
 
@@ -136,9 +138,30 @@ def generatePassword():
             bytes[i] = (element - 33) % (127 - 33 + 1) + 33
     string = ''.join(chr(byte) for byte in bytes)
     btn.config(bg='green')
+
     return  string
 
 
+
+def generate50():
+    try:
+        min_alpha = int(letters_entry.get())
+        max_alpha = int(letters_entry1.get())
+        min_num = int(num_entry.get())
+        max_num = int(num_entry1.get())
+        min_speciale = int(sym_entry.get())
+        max_speciale = int(sym_entry1.get())
+        total_elem = int(total_entry.get())
+    except:
+        messagebox.showwarning("Warning", "You need to provide parameters before generating passwords.")
+    file = open('passwords.txt', 'w')
+    for i in range(50):
+        generated = generatePassword()
+        file.write(generated)
+        file.write("\n")
+        generated = 0
+    file.close()
+    messagebox.showinfo("Complete","Passwords generateed successfully.")
 
 
 #Build GUI
@@ -196,5 +219,7 @@ btn.place(x=10,y=150)
 btn_generate = tk.Button(root, text="Generate Password", font=('Arial',12), command = printCreatedPass)
 btn_generate.place(x=150,y=150)
 
-root.mainloop()
+file_btn = tk.Button(root,text="Generate file 50 pass", font=('Arial',12), command= generate50)
+file_btn.place(x=320,y=150)
 
+root.mainloop()
